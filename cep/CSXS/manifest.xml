@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ExtensionManifest Version="7.0" ExtensionBundleId="local.streamvoicemarker" ExtensionBundleVersion="0.6.2" ExtensionBundleName="Stream Voice Marker">
+  <ExtensionList><Extension Id="local.streamvoicemarker.panel" Version="0.6.2"/></ExtensionList>
+  <ExecutionEnvironment>
+    <HostList><Host Name="PPRO" Version="[25.0,25.9]"/></HostList>
+    <LocaleList><Locale Code="All"/></LocaleList>
+    <RequiredRuntimeList><RequiredRuntime Name="CSXS" Version="12.0"/></RequiredRuntimeList>
+  </ExecutionEnvironment>
+  <DispatchInfoList><Extension Id="local.streamvoicemarker.panel"><DispatchInfo>
+    <Resources><MainPath>./index.html</MainPath><ScriptPath>./loader.jsx</ScriptPath>
+      <CEFCommandLine><Parameter>--enable-nodejs</Parameter><Parameter>--mixed-context</Parameter></CEFCommandLine>
+    </Resources>
+    <Lifecycle><AutoVisible>true</AutoVisible></Lifecycle>
+    <UI><Type>Panel</Type><Menu>Stream Voice Marker</Menu><Geometry><Size><Width>420</Width><Height>720</Height></Size><MinSize><Width>340</Width><Height>450</Height></MinSize></Geometry></UI>
+  </DispatchInfo></Extension></DispatchInfoList>
+</ExtensionManifest>

@@ -1,0 +1,14 @@
+.venv/
+data/
+__pycache__/
+*.pyc
+runtime.json
+test-output/
+dist/
+
+profiles/*.json
+.env*
+*.prproj
+*.mp4
+*.ts
+*.wav

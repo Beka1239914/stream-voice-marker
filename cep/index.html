@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><title>Stream Voice Marker</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<header><span class="dot"></span><div><h1>Stream Voice Marker</h1><p>Найти голос. Отметить. Выбрать лучшее.</p></div></header>
+<section><h2>1 · Запись стрима</h2>
+<button id="source">Взять выделенный клип из Premiere</button>
+<p id="sourceName" class="muted">Выделите видео на таймлайне или файл в панели проекта.</p>
+<small>Анализируется исходный файл целиком. Время образцов — от начала файла, не от начала смонтированной последовательности.</small>
+</section>
+<section><h2>2 · Голос стримера</h2>
+<select id="voiceProfile"><option value="">Загрузка профилей…</option></select>
+<p id="voiceInfo">Сохранённый голос используется на всех новых записях.</p>
+<details id="voiceSetup"><summary>Другой голос / свои образцы</summary>
+<p>Добавьте 1–3 отрывка по 10–30 секунд, где слышен только он.</p>
+<div class="row"><label>Начало<input id="refStart" placeholder="00:05:10" value="00:00:00"></label><label>Конец<input id="refEnd" placeholder="00:05:30" value="00:00:20"></label><button id="addRef">Добавить</button></div>
+<ul id="refs"></ul>
+<label>Название нового голоса<input id="voiceName" value="Другой стример" maxlength="80"></label>
+<button id="saveVoice">Сохранить новый голос</button>
+<small>Для образцов укажите время от начала выбранного файла. Уже сохранённые голоса останутся в списке.</small>
+</details>
+</section>
+<section><h2>3 · Поиск речи</h2>
+<label>Порог совпадения голоса <output id="thresholdValue">0.55</output><input id="threshold" type="range" min="0.25" max="0.85" step="0.01" value="0.55"></label>
+<small>Ниже — больше найденных реплик и ложных совпадений. Выше — строже отбор. Это не процент точности.</small>
+<div class="row"><label>Пауза внутри момента, сек<input id="gap" type="number" min="0" max="120" step="1" value="30"></label><label>Запас по краям, сек<input id="padding" type="number" min="0" max="5" step="0.1" value="0.2"></label></div>
+<small>Реплики с паузой до 30 секунд включительно объединяются вместе с паузой в один цельный фрагмент. Более длинная пауза разделяет моменты. Порог можно изменить выше.</small>
+<label>Речи в моменте больше, сек<input id="min_speech" type="number" min="0" max="3600" step="1" value="40"></label>
+<small>Цветом отмечаются только моменты с более чем 40 секундами найденной речи. Паузы и запас по краям не учитываются. Короткие моменты остаются без зелёной метки. Значение 0 отключает фильтр.</small>
+<div class="row"><button id="analyze" class="primary">Найти речь</button><button id="replan">Пересчитать отбор</button><button id="cancel" disabled>Остановить</button></div>
+<progress id="progress" max="100" value="0"></progress><p id="status" role="status">Готов к работе</p>
+</section>
+<section><h2>4 · Цветные фрагменты</h2>
+<label class="muted">Открыть сохранённый результат<input id="openResult" type="file" accept=".json"></label>
+<p id="summary">Сначала выполните анализ.</p>
+<label>Цвет речи<select id="label"><option value="5">Forest · тёмно-зелёный</option><option value="13">Green · зелёный</option></select></label>
+<button id="apply" class="primary" disabled>Создать размеченную последовательность</button>
+<small>Весь исходник останется в новой последовательности. Эффекты и монтаж открытой последовательности не переносятся. Цвет зависит от палитры меток Premiere.</small>
+<div id="segments"></div>
+</section>
+<section><h2>5 · Jump Cut · только тишина</h2>
+<p>Выделите нужные видеоклипы на таймлайне, включая оба слоя композиции 9:16. Паузы будут вырезаны синхронно на всех дорожках в копии последовательности.</p>
+<div class="row"><label>Пауза от, сек<input id="jumpMinimum" type="number" min="0.1" max="30" step="0.1" value="0.6"></label><label>Запас у звука, сек<input id="jumpPadding" type="number" min="0" max="2" step="0.05" value="0.1"></label></div>
+<label>Уровень тишины, дБ<input id="jumpNoise" type="number" min="-80" max="-15" step="1" value="-45"></label>
+<small>Тишина определяется по средней громкости за 20 мс в каждом канале: одиночные тихие всплески не дробят паузу. Если срезает тихую речь, уменьшите порог, например до −50 дБ. Музыка и «мм» выше порога сохраняются.</small>
+<button id="jumpAnalyze" class="primary">Рассчитать Jump Cut по выделению</button>
+<p id="jumpSummary" role="status">Выделите клипы одного исходника с обычной скоростью.</p>
+<button id="jumpApply" disabled>Создать последовательность Jump Cut</button>
+<label><input id="jumpNest" type="checkbox"> Эксперимент: цельные V1 + V2 + звук</label>
+<small>Каждая дорожка остаётся отдельно: цельный V1, цельный V2 и цельный звук, связанные между собой. Двойной щелчок открывает склейки соответствующего слоя. Для упаковки нужна одна пустая разблокированная видео- и аудиодорожка; после операции они останутся пустыми.</small>
+<button id="jumpApplyHere" class="primary" disabled>Применить в текущем эпизоде</button>
+<small>«В текущем эпизоде» изменяет исходный монтаж без создания нового эпизода. Обрабатываются выбранные участки времени на всех дорожках; остальные участки остаются на своих местах. После расчёта выберите один из двух способов применения.</small>
+<small>После нарезки совпадающие по границам видео и звук связываются пофрагментно. Для выбора V1 + V2 + звук одним нажатием включите «Связанное выделение» на таймлайне Premiere.</small>
+<small>Каждый выбранный клип остаётся на своей исходной позиции. Паузы сжимаются только внутри него: отдельные клипы не соединяются друг с другом.</small>
+<small>Сохраняются формат кадра, дорожки, положение, масштаб и эффекты клипов. В копию результата входят выбранные участки времени со всеми слоями. Наложенные выбранные клипы должны совпадать по границам и исходному времени. Анализируется исходный звук файла до эффектов и регулировки громкости. Дополнительная музыка и переходы пока не поддерживаются. Остановить анализ можно кнопкой «Остановить» выше.</small>
+</section><script src="panel.js"></script></body></html>
